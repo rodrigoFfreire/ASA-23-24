@@ -16,8 +16,8 @@ struct Sheet {
 }
 
 impl Sheet {
-    fn new(sheet_area: u32) -> Sheet {
-        let memo_table = vec![vec![0; (sheet_area + 1) as usize]; (sheet_area + 1) as usize];
+    fn new(sheet_area: u32, piece_amount: u32) -> Sheet {
+        let memo_table = vec![vec![0; (sheet_area + 1) as usize]; (piece_amount + 1) as usize];
 
         Sheet {
             sheet_area,
@@ -107,7 +107,7 @@ fn main() {
 
     let piece_amount = parse_integer_tokens(PIECE_AMOUNT).expect(ERR_FAILED_PARSE)[0];
 
-    let mut sheet = Sheet::new(sheet_dimensions[0] * sheet_dimensions[1]);
+    let mut sheet = Sheet::new(sheet_dimensions[0] * sheet_dimensions[1], piece_amount);
     let mut order: Order = Order::new(piece_amount);
 
     if piece_amount <= 0 {
