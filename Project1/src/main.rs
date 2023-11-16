@@ -1,4 +1,4 @@
-use std::{io, num::ParseIntError};
+use std::{io, num::ParseIntError, vec};
 
 macro_rules! max {
     ($x: expr, $y: expr) => {
@@ -10,75 +10,88 @@ macro_rules! max {
     };
 }
 
+const SHEET_DIMENSIONS: usize = 2;
+const PIECE_ARGUMENTS: usize = 3;
+const PIECE_AMOUNT: usize = 1;
+const DIM_X: usize = 0;
+const DIM_Y: usize = 1;
+const ERR_FAILED_PARSE: &str = "Failed Parsing!";
+
 struct Sheet {
-    sheet_area: u32,
-    memo_table: Vec<Vec<u32>>
+    sheet_x: u32,
+    sheet_y: u32,
+    memo_table: Vec<Vec<Vec<u32>>>
 }
 
 impl Sheet {
-    fn new(sheet_area: u32, piece_amount: u32) -> Sheet {
-        let memo_table = vec![vec![0; (sheet_area + 1) as usize]; (piece_amount + 1) as usize];
+    fn new(sheet_x: u32, sheet_y: u32, piece_amount: u32) -> Sheet {
+        let memo_table =
+            vec![vec![vec![0; (sheet_y + 1) as usize]; (sheet_x + 1) as usize]; (piece_amount + 1) as usize];
 
         Sheet {
-            sheet_area,
-            memo_table,
+            sheet_x,
+            sheet_y,
+            memo_table
         }
     }
 }
 
 
 struct Order {
-    areas: Vec<u32>,
+    dimensions: Vec<Vec<u32>>,
     prices: Vec<u32>,
     amount: u32,
 }
 
 impl Order {
     fn new(amount: u32) -> Order {
-        let areas: Vec<u32> = vec![0; (amount + 1) as usize];
+        let dimensions = vec![vec![0; (SHEET_DIMENSIONS + 1) as usize]; (amount + 1) as usize];
         let prices: Vec<u32> = vec![0; (amount + 1) as usize];
+
         Order {
-            areas,
+            dimensions,
             prices,
             amount,
         }
     }
 
-    fn add_piece(&mut self, area: u32, price: u32, index: usize) {
-        self.areas[index] = area;
+    fn add_piece(&mut self, x: u32, y: u32, price: u32, index: usize) {
+        self.dimensions[index][DIM_X] = x;
+        self.dimensions[index][DIM_Y] = y;
         self.prices[index] = price;
     }
 }
 
 
-const SHEET_DIMENSIONS: usize = 2;
-const PIECE_ARGUMENTS: usize = 3;
-const PIECE_AMOUNT: usize = 1;
-const ERR_FAILED_PARSE: &str = "Failed Parsing!";
-
-
 fn solve_best_value(order: &Order, sheet: &mut Sheet) -> u32 {
     let matrix = &mut sheet.memo_table;
-    let max_area = sheet.sheet_area as usize;
     let piece_amount = order.amount as usize;
+    let max_x = sheet.sheet_x as usize;
+    let max_y = sheet.sheet_y as usize;
 
-    let areas = &order.areas;
+    let dimensions = &order.dimensions;
     let prices = &order.prices;
 
     for i in 1..=piece_amount {
-        for j in 1..=max_area {
-            if areas[i] > j.try_into().unwrap() {
-                matrix[i][j] = matrix[i - 1][j];
-            } else {
-                matrix[i][j] = max!(
-                    matrix[i - 1][j],
-                    matrix[i - 1][j - (areas[i] as usize)] + prices[i]
-                );
+        for j in 1..=max_x {
+            for k in 1..=max_y {
+                if dimensions[i][DIM_X] > j.try_into().unwrap() {
+                    matrix[i][j][k] = matrix[i - 1][j][k];
+                } else {
+                    if dimensions[i][DIM_Y] > k.try_into().unwrap() {
+                        matrix[i][j][k] = matrix[i - 1][j][k];
+                    } else {
+                        matrix[i][j][k] = max!(
+                            matrix[i - 1][j][k],
+                            matrix[i - 1][j - (dimensions[i][DIM_X]) as usize][k - (dimensions[i][DIM_Y]) as usize] + prices[i]
+                        );
+                    }
+                }
             }
         }
     }
-
-    matrix[piece_amount][max_area]
+    
+    matrix[piece_amount][max_x][max_y]
 }
 
 
@@ -107,7 +120,7 @@ fn main() {
 
     let piece_amount = parse_integer_tokens(PIECE_AMOUNT).expect(ERR_FAILED_PARSE)[0];
 
-    let mut sheet = Sheet::new(sheet_dimensions[0] * sheet_dimensions[1], piece_amount);
+    let mut sheet = Sheet::new(sheet_dimensions[0], sheet_dimensions[1], piece_amount);
     let mut order: Order = Order::new(piece_amount);
 
     if piece_amount <= 0 {
@@ -117,7 +130,7 @@ fn main() {
 
     for i in 1..(piece_amount + 1) {
         let piece = parse_integer_tokens(PIECE_ARGUMENTS).expect(ERR_FAILED_PARSE);
-        order.add_piece(piece[0] * piece[1], piece[2], i as usize);
+        order.add_piece(piece[0], piece[1], piece[2], i as usize);
     }
 
     let result = solve_best_value(&order, &mut sheet);
