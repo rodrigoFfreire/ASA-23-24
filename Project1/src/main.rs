@@ -1,11 +1,6 @@
+mod constants;
 use std::{io, num::ParseIntError};
-
-const SHEET_DIMENSIONS: usize = 2;
-const PIECE_ARGUMENTS: usize = 3;
-const PIECE_AMOUNT: usize = 1;
-const DIM_X: usize = 0;
-const DIM_Y: usize = 1;
-const ERR_FAILED_PARSE: &str = "Failed Parsing!";
+use crate::constants::*;
 
 struct Order {
     areas: Vec<usize>,
@@ -70,9 +65,9 @@ fn parse_integer_tokens(amount: usize) -> Result<Vec<usize>, String> {
 }
 
 fn main() {
-    let sheet_dimensions = parse_integer_tokens(SHEET_DIMENSIONS).expect(ERR_FAILED_PARSE);
+    let sheet_dimensions = parse_integer_tokens(PARSE_ARGS_SHEET_SIZE).expect(ERR_FAILED_PARSE);
 
-    let piece_amount = parse_integer_tokens(PIECE_AMOUNT).expect(ERR_FAILED_PARSE)[0];
+    let piece_amount = parse_integer_tokens(PARSE_ARGS_PIECE_AMOUNT).expect(ERR_FAILED_PARSE)[0];
 
     let mut order: Order = Order::new(piece_amount);
     let max_area = sheet_dimensions[DIM_X] * sheet_dimensions[DIM_Y];
@@ -83,7 +78,7 @@ fn main() {
     }
 
     for i in 0..piece_amount {
-        let piece = parse_integer_tokens(PIECE_ARGUMENTS).expect(ERR_FAILED_PARSE);
+        let piece = parse_integer_tokens(PARSE_ARGS_PIECE).expect(ERR_FAILED_PARSE);
         order.add_piece(piece[0], piece[1], piece[2], i);
     }
 
