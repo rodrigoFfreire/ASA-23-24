@@ -1,15 +1,5 @@
 use std::{io, num::ParseIntError, vec};
 
-macro_rules! max {
-    ($x: expr, $y: expr) => {
-        if $x > $y {
-            $x
-        } else {
-            $y
-        }
-    };
-}
-
 const SHEET_DIMENSIONS: usize = 2;
 const PIECE_ARGUMENTS: usize = 3;
 const PIECE_AMOUNT: usize = 1;
@@ -17,62 +7,50 @@ const DIM_X: usize = 0;
 const DIM_Y: usize = 1;
 const ERR_FAILED_PARSE: &str = "Failed Parsing!";
 
-struct Sheet {
-    sheet_x: u32,
-    sheet_y: u32,
-    memo_table: Vec<Vec<Vec<u32>>>
-}
-
-impl Sheet {
-    fn new(sheet_x: u32, sheet_y: u32, piece_amount: u32) -> Sheet {
-        let memo_table =
-            vec![vec![vec![0; (sheet_y + 1) as usize]; (sheet_x + 1) as usize]; (piece_amount + 1) as usize];
-
-        Sheet {
-            sheet_x,
-            sheet_y,
-            memo_table
-        }
-    }
-}
-
 
 struct Order {
-    dimensions: Vec<Vec<u32>>,
+    areas: Vec<u32>,
     prices: Vec<u32>,
     amount: u32,
 }
 
 impl Order {
-    fn new(amount: u32) -> Order {
-        let dimensions = vec![vec![0; (SHEET_DIMENSIONS + 1) as usize]; (amount + 1) as usize];
-        let prices: Vec<u32> = vec![0; (amount + 1) as usize];
+    fn new(amount: u32) -> Self {
+        let areas: Vec<u32> = vec![0; amount as usize];
+        let prices: Vec<u32> = vec![0; amount as usize];
 
-        Order {
-            dimensions,
+        Self {
+            areas,
             prices,
             amount,
         }
     }
 
     fn add_piece(&mut self, x: u32, y: u32, price: u32, index: usize) {
-        self.dimensions[index][DIM_X] = x;
-        self.dimensions[index][DIM_Y] = y;
+        self.areas[index] = x * y;
         self.prices[index] = price;
     }
 }
 
 
-fn solve_best_value(order: &Order, sheet: &mut Sheet) -> u32 {
-    let matrix = &mut sheet.memo_table;
+fn solve_best_value(order: &Order, max_area: usize) -> u32 {
     let piece_amount = order.amount as usize;
-    let max_x = sheet.sheet_x as usize;
-    let max_y = sheet.sheet_y as usize;
-
-    let dimensions = &order.dimensions;
+    let areas = &order.areas;
     let prices = &order.prices;
 
-    for i in 1..=piece_amount {
+    let mut max_value = vec![0; (max_area + 1) as usize];
+
+    for w in 0..=max_area {
+        for i in 0..piece_amount {
+            if areas[i] as usize <= w {
+                max_value[w] = max_value[w].max(max_value[w - areas[i] as usize] + prices[i]);
+            }
+        }
+    }
+
+    return max_value[max_area];
+
+    /*for i in 1..=piece_amount {
         for j in 1..=max_x {
             for k in 1..=max_y {
                 if dimensions[i][DIM_X] > j.try_into().unwrap() {
@@ -81,9 +59,18 @@ fn solve_best_value(order: &Order, sheet: &mut Sheet) -> u32 {
                     if dimensions[i][DIM_Y] > k.try_into().unwrap() {
                         matrix[i][j][k] = matrix[i - 1][j][k];
                     } else {
+                        let mut diff = [0, 0];
+                        let piece_x = dimensions[i][DIM_X]; let piece_y = dimensions[i][DIM_Y];
+
+                        if piece_y <= k as u32 || piece_x >= piece_y {
+                            diff[1] = piece_y
+                        } else {
+                            diff[0] = piece_x
+                        }
+
                         matrix[i][j][k] = max!(
                             matrix[i - 1][j][k],
-                            matrix[i - 1][j - (dimensions[i][DIM_X]) as usize][k - (dimensions[i][DIM_Y]) as usize] + prices[i]
+                            matrix[i - 1][j - (diff[0]) as usize][k - (diff[1]) as usize] + prices[i]
                         );
                     }
                 }
@@ -91,7 +78,7 @@ fn solve_best_value(order: &Order, sheet: &mut Sheet) -> u32 {
         }
     }
     
-    matrix[piece_amount][max_x][max_y]
+    matrix[piece_amount][max_x][max_y]*/
 }
 
 
@@ -120,19 +107,19 @@ fn main() {
 
     let piece_amount = parse_integer_tokens(PIECE_AMOUNT).expect(ERR_FAILED_PARSE)[0];
 
-    let mut sheet = Sheet::new(sheet_dimensions[0], sheet_dimensions[1], piece_amount);
     let mut order: Order = Order::new(piece_amount);
+    let max_area = (sheet_dimensions[DIM_X] * sheet_dimensions[DIM_Y]) as usize;
 
     if piece_amount <= 0 {
         eprintln!("There must be at least 1 piece!");
         return;
     }
 
-    for i in 1..(piece_amount + 1) {
+    for i in 0..piece_amount {
         let piece = parse_integer_tokens(PIECE_ARGUMENTS).expect(ERR_FAILED_PARSE);
         order.add_piece(piece[0], piece[1], piece[2], i as usize);
     }
 
-    let result = solve_best_value(&order, &mut sheet);
+    let result = solve_best_value(&order, max_area);
     println!("{}", result);
 }
