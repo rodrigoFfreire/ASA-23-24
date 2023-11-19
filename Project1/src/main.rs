@@ -28,6 +28,11 @@ impl Order {
 
 fn solve_best_value(order: &Order, max_area: usize) -> usize {
     let piece_amount = order.amount;
+
+    if piece_amount == 0 {
+        return 0;
+    }
+
     let areas = &order.areas;
     let prices = &order.prices;
 
@@ -71,11 +76,6 @@ fn main() {
 
     let mut order: Order = Order::new(piece_amount);
     let max_area = sheet_dimensions[DIM_X] * sheet_dimensions[DIM_Y];
-
-    if piece_amount <= 0 {
-        eprintln!("There must be at least 1 piece!");
-        return;
-    }
 
     for i in 0..piece_amount {
         let piece = parse_integer_tokens(PARSE_ARGS_PIECE).expect(ERR_FAILED_PARSE);
