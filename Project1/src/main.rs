@@ -1,52 +1,79 @@
 mod constants;
-use std::{io, num::ParseIntError};
+use std::{io, num::ParseIntError, usize};
 use crate::constants::*;
 
 struct Order {
-    areas: Vec<usize>,
-    prices: Vec<usize>,
+    pieces: Vec<[usize; PARSE_ARGS_PIECE]>,
     amount: usize,
 }
 
 impl Order {
     fn new(amount: usize) -> Self {
-        let areas: Vec<usize> = vec![0; amount];
-        let prices: Vec<usize> = vec![0; amount];
+        let pieces: Vec<[usize; PARSE_ARGS_PIECE]> = vec![[0, 0, 0]; amount];
 
         Self {
-            areas,
-            prices,
+            pieces,
             amount,
         }
     }
 
     fn add_piece(&mut self, x: usize, y: usize, price: usize, index: usize) {
-        self.areas[index] = x * y;
-        self.prices[index] = price;
+        self.pieces[index] = [x, y, price];
     }
 }
 
-fn solve_best_value(order: &Order, max_area: usize) -> usize {
-    let piece_amount = order.amount;
+fn piece_fits(piece_x: usize, piece_y: usize, current_sheet_x: usize, current_sheet_y: usize) -> bool {
+    return piece_x <= current_sheet_x && piece_y <= current_sheet_y;
+}
 
-    if piece_amount == 0 {
+fn solve_best_value(order: &Order, sheet_x: usize, sheet_y: usize) -> usize {
+    if order.amount <= 0 {
         return 0;
     }
 
-    let areas = &order.areas;
-    let prices = &order.prices;
+    let mut new_sheet_x = sheet_x;
+    let mut new_sheet_y = sheet_y;
+    let piece_amount = order.amount;
+    if sheet_x > sheet_y {
+        (new_sheet_x, new_sheet_y) = (new_sheet_y, new_sheet_x);
+    }
 
-    let mut max_value = vec![0; max_area + 1];
+    let mut max_value = vec![vec![0 as usize; new_sheet_y + 1]; new_sheet_x + 1];
 
-    for w in 0..=max_area {
-        for i in 0..piece_amount {
-            if areas[i] <= w {
-                max_value[w] = max_value[w].max(max_value[w - areas[i]] + prices[i]);
+    for x in 1..=new_sheet_x {
+        for y in x..=new_sheet_y {
+            for i in 0..piece_amount {
+                let mut piece_x = order.pieces[i][DIM_X];
+                let mut piece_y = order.pieces[i][DIM_Y];
+                let piece_price = order.pieces[i][PRICE];
+
+                if piece_x > piece_y {
+                    (piece_x, piece_y) = (piece_y, piece_x);
+                }
+                if piece_fits(piece_x, piece_y, x, y) {
+                    if piece_x == x && piece_y == y {
+                        max_value[x][y] = max_value[x][y].max(piece_price);
+                    } else {
+                        let mut h_cut_value = 0;
+                        let mut v_cut_value = 0;
+
+                        if x > piece_x {
+                            v_cut_value = max_value[piece_x][y] + max_value[x - piece_x][y];
+                        }
+                        if y > piece_y {
+                            h_cut_value = max_value[x][piece_y] + max_value[x][y - piece_y];
+                        }
+
+                        max_value[x][y] = max_value[x][y].max(
+                            h_cut_value.max(v_cut_value)
+                        );
+                    }
+
+                }
             }
         }
     }
-
-    return max_value[max_area];
+    return max_value[new_sheet_x][new_sheet_y];
 }
 
 fn parse_integer_tokens(amount: usize) -> Result<Vec<usize>, String> {
@@ -75,13 +102,12 @@ fn main() {
     let piece_amount = parse_integer_tokens(PARSE_ARGS_PIECE_AMOUNT).expect(ERR_FAILED_PARSE)[0];
 
     let mut order: Order = Order::new(piece_amount);
-    let max_area = sheet_dimensions[DIM_X] * sheet_dimensions[DIM_Y];
 
     for i in 0..piece_amount {
         let piece = parse_integer_tokens(PARSE_ARGS_PIECE).expect(ERR_FAILED_PARSE);
         order.add_piece(piece[0], piece[1], piece[2], i);
     }
 
-    let result = solve_best_value(&order, max_area);
+    let result = solve_best_value(&order, sheet_dimensions[DIM_X], sheet_dimensions[DIM_Y]);
     println!("{}", result);
 }
