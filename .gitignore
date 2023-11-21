@@ -1,3 +1,4 @@
+*.py
 *.pdf
 *.code-workspace
 *.lock
