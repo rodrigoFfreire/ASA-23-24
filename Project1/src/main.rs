@@ -37,12 +37,6 @@ impl Matrix {
             table: vec![0; matrix_x * matrix_y],
         }
     }
-    /*fn get(&mut self, i: usize, j: usize) -> usize {
-        self.table[j * self.matrix_x + i]
-    }
-    fn set(&mut self, i: usize, j: usize, item: usize) {
-        self.table[j * self.matrix_x + i] = item;
-    }*/
 }
 
 struct Piece {
@@ -62,19 +56,18 @@ impl Piece {
 }
 
 fn piece_fits(&piece_x: &usize, &piece_y: &usize, sheet_x: usize, sheet_y: usize) -> PieceFit {
-    if check_fit!(piece_x, piece_y, sheet_x, sheet_y) {
-        if check_fit!(rotated, piece_x, piece_y, sheet_x, sheet_y) {
-            return PieceFit::FitsAll;
+    match piece_x * piece_y > sheet_x * sheet_y {
+        true => PieceFit::NoFit,
+        false => match (check_fit!(piece_x, piece_y, sheet_x, sheet_y),
+                        check_fit!(rotated, piece_x, piece_y, sheet_x, sheet_y)) {
+            (true, true) => PieceFit::FitsAll,
+            (true, false) => PieceFit::OnlyFitsOriginal,
+            (false, true) => PieceFit::OnlyFitsRotated,
+            (false, false) => PieceFit::NoFit,
         }
-        return PieceFit::OnlyFitsOriginal;
-    } else if check_fit!(rotated, piece_x, piece_y, sheet_x, sheet_y) {
-        if check_fit!(piece_x, piece_y, sheet_x, sheet_y) {
-            return PieceFit::FitsAll;
-        }
-        return PieceFit::OnlyFitsRotated;
     }
-    return PieceFit::NoFit;
 }
+    
 
 fn calculate_best_value(
     &piece_x: &usize,
