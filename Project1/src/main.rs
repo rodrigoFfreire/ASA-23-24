@@ -12,6 +12,18 @@ macro_rules! check_fit {
     };
 }
 
+macro_rules! matrix_get {
+    ($x:expr, $y:expr, $m:expr) => {
+        $m.table[$y * $m.matrix_x + $x]
+    }
+}
+
+macro_rules! matrix_set {
+    ($x:expr, $y:expr, $m:expr, $value:expr) => {
+        $m.table[$y * $m.matrix_x + $x] = $value;
+    };
+}
+
 struct Matrix {
     matrix_x: usize,
     table: Vec<usize>,
@@ -25,12 +37,12 @@ impl Matrix {
             table: vec![0; matrix_x * matrix_y],
         }
     }
-    fn get(&mut self, i: usize, j: usize) -> usize {
+    /*fn get(&mut self, i: usize, j: usize) -> usize {
         self.table[j * self.matrix_x + i]
     }
     fn set(&mut self, i: usize, j: usize, item: usize) {
         self.table[j * self.matrix_x + i] = item;
-    }
+    }*/
 }
 
 struct Piece {
@@ -76,23 +88,23 @@ fn calculate_best_value(
     let mut _best_value = 0;
 
     if piece_x == x && piece_y == y {
-        _best_value = matrix.get(x, y).max(piece_price);
+        _best_value = matrix_get!(x, y, matrix).max(piece_price);
     } else {
         let mut h_cut_value = 0;
         let mut v_cut_value = 0;
 
         if x > piece_x {
-            v_cut_value = matrix.get(piece_x, y) + matrix.get(x - piece_x, y);
+            v_cut_value = matrix_get!(piece_x, y, matrix) + matrix_get!(x - piece_x, y, matrix);
         }
         if y > piece_y {
-            h_cut_value = matrix.get(x, piece_y) + matrix.get(x, y - piece_y);
+            h_cut_value = matrix_get!(x, piece_y, matrix) + matrix_get!(x, y - piece_y, matrix);
         }
-        _best_value = matrix.get(x, y).max(h_cut_value.max(v_cut_value));
+        _best_value = matrix_get!(x, y, matrix).max(h_cut_value.max(v_cut_value));
     }
     if _best_value > 0 {
-        matrix.set(x, y, _best_value);
+        matrix_set!(x, y, matrix, _best_value);
         if y > x && y <= max_sheet_x {
-            matrix.set(y, x, _best_value);
+            matrix_set!(y, x, matrix, _best_value);
         }
     }
 }
@@ -136,7 +148,7 @@ fn solve_best_value(order: &Vec<Piece>, amount: usize, sheet_x: usize, sheet_y: 
             }
         }
     }
-    return max_value.get(new_sheet_x, new_sheet_y);
+    return matrix_get!(new_sheet_x, new_sheet_y, max_value);
 }
 
 fn parse_integer_tokens(amount: usize) -> Result<Vec<usize>, String> {
