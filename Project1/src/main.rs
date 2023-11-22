@@ -1,6 +1,19 @@
-mod constants;
-use crate::constants::*;
 use std::{io, num::ParseIntError, usize};
+
+pub const DIM_X: usize = 0;
+pub const DIM_Y: usize = 1;
+pub const PRICE: usize = 2;
+pub const ERR_FAILED_PARSE: &str = "Failed Parsing!";
+pub const PARSE_ARGS_SHEET_SIZE: usize = 2;
+pub const ARGS_PIECE: usize = 3;
+pub const PARSE_ARGS_PIECE_AMOUNT: usize = 1;
+
+pub enum PieceFit {
+    NoFit,
+    OnlyFitsOriginal,
+    OnlyFitsRotated,
+    FitsAll,
+}
 
 macro_rules! check_fit {
     ($piece_x:expr, $piece_y:expr, $sheet_x:expr, $sheet_y:expr) => {
