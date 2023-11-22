@@ -84,7 +84,6 @@ fn solve_best_value(order: &Order, sheet_x: usize, sheet_y: usize) -> usize {
 
     let mut new_sheet_x = sheet_x;
     let mut new_sheet_y = sheet_y;
-    let piece_amount = order.amount;
 
     if sheet_x > sheet_y {
         (new_sheet_x, new_sheet_y) = (new_sheet_y, new_sheet_x);
@@ -93,12 +92,10 @@ fn solve_best_value(order: &Order, sheet_x: usize, sheet_y: usize) -> usize {
 
     for x in 1..=new_sheet_x {
         for y in x..=new_sheet_y {
-            for i in 0..piece_amount {
-                let piece_x = order.pieces[i][DIM_X];
-                let piece_y = order.pieces[i][DIM_Y];
-                let piece_price = order.pieces[i][PRICE];
-
+            for piece in &(order.pieces) {
+                let [piece_x, piece_y, piece_price] = piece[..3].try_into().unwrap();
                 let fits = piece_fits(piece_x, piece_y, x, y);
+                
                 match fits {
                     PieceFit::NoFit => continue,
                     PieceFit::OnlyFitsOriginal => calculate_best_value(
