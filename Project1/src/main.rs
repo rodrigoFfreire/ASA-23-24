@@ -11,7 +11,7 @@ use solver::{
 use std::{io, num::ParseIntError};
 
 
-fn parse_integer_tokens(amount: usize) -> Result<Vec<u32>, String> {
+fn parse_integer_tokens(amount: usize) -> Result<Vec<usize>, String> {
     let mut input = String::new();
 
     io::stdin()
@@ -25,7 +25,7 @@ fn parse_integer_tokens(amount: usize) -> Result<Vec<u32>, String> {
     }
 
     // Maps the string tokens into integers
-    let parsed_integers: Result<Vec<u32>, ParseIntError> =
+    let parsed_integers: Result<Vec<usize>, ParseIntError> =
         tokens.into_iter().map(|token| token.parse()).collect();
 
     parsed_integers.map_err(|e| format!("Failed to parse {}", e))
@@ -36,7 +36,7 @@ fn main() {
 
     let piece_amount = parse_integer_tokens(PARSE_ARGS_PIECE_AMOUNT).expect(ERR_FAILED_PARSE)[0];
 
-    let mut order = Vec::with_capacity(piece_amount as usize);
+    let mut order = Vec::with_capacity(piece_amount);
 
     for _ in 0..piece_amount {
         let piece_info = parse_integer_tokens(ARGS_PIECE).expect(ERR_FAILED_PARSE);
