@@ -11,7 +11,6 @@ pub const PARSE_ARGS_PIECE_AMOUNT: usize = 1;
 pub enum PieceFit {
     NoFit,
     OnlyFitsOriginal,
-    OnlyFitsRotated,
     FitsAll,
 }
 
@@ -80,8 +79,7 @@ fn piece_fits(piece_x: usize, piece_y: usize, sheet_x: usize, sheet_y: usize) ->
                 check_fit!(rotated, piece_x, piece_y, sheet_x, sheet_y)) {
             (true, true) => PieceFit::FitsAll,
             (true, false) => PieceFit::OnlyFitsOriginal,
-            (false, true) => PieceFit::OnlyFitsRotated,
-            (false, false) => PieceFit::NoFit,
+            (false, _) => PieceFit::NoFit,
     }
                     
 }
@@ -114,8 +112,8 @@ fn calculate_best_value(
 }
 
 fn get_minimum_piece(order: &Vec<Piece>, sheet_x: usize) -> (usize, usize, usize) {
-    let mut min_x = 0;
-    let mut min_y = 0;
+    let mut min_x = order[0].x;
+    let mut min_y = order[0].y;
     let mut min_index = order[0].y * sheet_x + order[0].x;
     let mut _i = 0;
 
@@ -144,11 +142,7 @@ pub fn solve_best_value(order: &Vec<Piece>, amount: usize, sheet_x: usize, sheet
 
     let mut max_value = Matrix::new(new_sheet_x + 1, new_sheet_y + 1);
 
-    let mut _piece_x = 0;
-    let mut _piece_y = 0;
-    let mut _piece_price = 0;
     let mut _best_value = 0;
-    let mut _fits = PieceFit::NoFit;
     let mut _t_i = min_piece.2;
     let mut _is_first = true;
 
@@ -158,9 +152,7 @@ pub fn solve_best_value(order: &Vec<Piece>, amount: usize, sheet_x: usize, sheet
     while y <= new_sheet_y {
         while x <= new_sheet_x {
             for piece in order.iter() {
-                _piece_x = piece.x;
-                _piece_y = piece.y;
-                _piece_price = piece.price;
+                let (_piece_x, _piece_y, _piece_price) = (piece.x, piece.y, piece.price);
 
                 if _piece_x == x && _piece_y == y {
                     _best_value = max_value.get_pre(_t_i).max(_piece_price);
@@ -169,16 +161,14 @@ pub fn solve_best_value(order: &Vec<Piece>, amount: usize, sheet_x: usize, sheet
                         max_value.set(y, x, _best_value);
                     }
                 } else {     
-                    _fits = piece_fits(_piece_x, _piece_y, x, y);
+                    let _fits = piece_fits(_piece_x, _piece_y, x, y);
 
                     match _fits {
                         PieceFit::NoFit => continue,
-                        PieceFit::OnlyFitsOriginal => calculate_best_value(
+                        PieceFit::OnlyFitsOriginal => {
+                            calculate_best_value(
                             _piece_x, _piece_y, &mut max_value, x, y, _t_i, new_sheet_y
-                        ),
-                        PieceFit::OnlyFitsRotated => calculate_best_value(
-                            _piece_y, _piece_x, &mut max_value, x, y, _t_i, new_sheet_y
-                        ),
+                        )},
                         PieceFit::FitsAll => {
                             calculate_best_value(
                                 _piece_x, _piece_y, &mut max_value, x, y, _t_i, new_sheet_y
