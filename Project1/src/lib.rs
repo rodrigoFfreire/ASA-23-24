@@ -38,12 +38,6 @@ impl Matrix {
     fn set(&mut self, x: usize, y: usize, item: usize) {
         self.table[y * self.matrix_x + x] = item;
     }
-    fn get_pre(&mut self, i: usize) -> usize {
-        self.table[i]
-    }
-    fn set_pre(&mut self, i: usize, item: usize) {
-        self.table[i] = item;
-    }
 }
 
 
@@ -77,20 +71,13 @@ fn calculate_best_value(
     x: usize,
     y: usize,
 ) -> usize {
-    let mut h_cut_value = 0;
-    let mut v_cut_value = 0;
-
-    if x > piece_x {
-        v_cut_value = matrix.get(piece_x, y) + matrix.get(x - piece_x, y);
-    }
-    if y > piece_y {
-        h_cut_value = matrix.get(x, piece_y) + matrix.get(x, y - piece_y);
-    }
+    let v_cut_value = matrix.get(piece_x, y) + matrix.get(x - piece_x, y);
+    let h_cut_value = matrix.get(x, piece_y) + matrix.get(x, y - piece_y);
 
     return h_cut_value.max(v_cut_value);
 }
 
-fn get_minimum_piece(order: &Vec<Piece>, sheet_x: usize) -> (usize, usize, usize) {
+fn get_minimum_piece(order: &[Piece], sheet_x: usize) -> (usize, usize, usize) {
     let mut min_x = order[0].x;
     let mut min_y = order[0].y;
     let mut min_index = order[0].y * sheet_x + order[0].x;
@@ -107,7 +94,7 @@ fn get_minimum_piece(order: &Vec<Piece>, sheet_x: usize) -> (usize, usize, usize
     return (min_x, min_y, min_index);
 }
 
-pub fn solve_best_value(order: &Vec<Piece>, amount: usize, sheet_x: usize, sheet_y: usize) -> usize {
+pub fn solve_best_value(order: &[Piece], amount: usize, sheet_x: usize, sheet_y: usize) -> usize {
     if amount <= 0 {
         return 0;
     }
@@ -126,7 +113,7 @@ pub fn solve_best_value(order: &Vec<Piece>, amount: usize, sheet_x: usize, sheet
 
     while y <= new_sheet_y {
         while x <= new_sheet_x {
-            let mut best_value = max_value.get_pre(_t_i);
+            let mut best_value = max_value.table[_t_i];
             for piece in order.iter() {
                 let (piece_x, piece_y, piece_price) = (piece.x, piece.y, piece.price);
                 if !check_fit!(piece_x, piece_y, x, y) {
@@ -146,7 +133,7 @@ pub fn solve_best_value(order: &Vec<Piece>, amount: usize, sheet_x: usize, sheet
                 }
             }
             _t_i += 1;
-            max_value.set_pre(_t_i, best_value);
+            max_value.table[_t_i] = best_value;
             if x > y && x <= new_sheet_y {
                 max_value.set(y, x, best_value);
             }
