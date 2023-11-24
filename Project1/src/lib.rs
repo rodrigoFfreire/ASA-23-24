@@ -9,12 +9,6 @@ pub const ARGS_PIECE: usize = 3;
 pub const PARSE_ARGS_PIECE_AMOUNT: usize = 1;
 
 
-pub enum PieceFit {
-    NoFit,
-    OnlyFitsOriginal,
-    FitsAll,
-}
-
 macro_rules! check_fit {
     ($piece_x:expr, $piece_y:expr, $sheet_x:expr, $sheet_y:expr) => {
         $piece_x <= $sheet_x && $piece_y <= $sheet_y
@@ -76,25 +70,13 @@ impl Piece {
     }
 }
 
-/* fn piece_fits(piece_x: usize, piece_y: usize, sheet_x: usize, sheet_y: usize) -> PieceFit {
-    match (check_fit!(piece_x, piece_y, sheet_x, sheet_y),
-                check_fit!(rotated, piece_x, piece_y, sheet_x, sheet_y)) {
-            (true, true) => PieceFit::FitsAll,
-            (true, false) => PieceFit::OnlyFitsOriginal,
-            (false, _) => PieceFit::NoFit,
-    }
-                    
-} */
-
 fn calculate_best_value(
     piece_x: usize,
     piece_y: usize,
     matrix: &mut Matrix,
     x: usize,
     y: usize,
-    _t_i: usize,
-    max_sheet_y: usize
-) {
+) -> usize {
     let mut h_cut_value = 0;
     let mut v_cut_value = 0;
 
@@ -105,11 +87,7 @@ fn calculate_best_value(
         h_cut_value = matrix.get(x, piece_y) + matrix.get(x, y - piece_y);
     }
 
-    let _best_value = matrix.get_pre(_t_i).max(h_cut_value.max(v_cut_value));
-    matrix.set_pre(_t_i, _best_value);
-    if x > y && x <= max_sheet_y {
-        matrix.set(y, x, _best_value);
-    }
+    return h_cut_value.max(v_cut_value);
 }
 
 fn get_minimum_piece(order: &Vec<Piece>, sheet_x: usize) -> (usize, usize, usize) {
@@ -139,51 +117,44 @@ pub fn solve_best_value(order: &Vec<Piece>, amount: usize, sheet_x: usize, sheet
     if sheet_y > sheet_x {
         (new_sheet_x, new_sheet_y) = (new_sheet_y, new_sheet_x);
     }
-    let min_piece = get_minimum_piece(order, new_sheet_x + 1);
-
     let mut max_value = Matrix::new(new_sheet_x + 1, new_sheet_y + 1);
-
-    let mut _best_value = 0;
-    let mut _is_first = true;
     
+    let min_piece = get_minimum_piece(order, new_sheet_x + 1);
     let mut y: usize = min_piece.1;
-    let mut x: usize = y;
-    let mut _t_i = y * (new_sheet_x + 1);
+    let mut x: usize = min_piece.0;
+    let mut _t_i = min_piece.2 - 1;
 
     while y <= new_sheet_y {
         while x <= new_sheet_x {
+            let mut best_value = max_value.get_pre(_t_i);
             for piece in order.iter() {
                 let (piece_x, piece_y, piece_price) = (piece.x, piece.y, piece.price);
-                if check_fit!(piece_x, piece_y, x, y) {
-                    if piece_x == x && piece_y == y {
-                        _best_value = max_value.get_pre(_t_i).max(piece_price);
-                        max_value.set_pre(_t_i, _best_value);
-                        if x > y && x <= new_sheet_y {
-                            max_value.set(y, x, _best_value);
-                        }
-                    } else {
-                        calculate_best_value(
-                            piece_x, piece_y, &mut max_value, x, y, _t_i, new_sheet_y
-                        );
-                        if check_fit!(rotated, piece_x, piece_y, x, y) {
-                            calculate_best_value(
-                                piece_y, piece_x, &mut max_value, x, y, _t_i, new_sheet_y
-                            );
-                        }
+                if !check_fit!(piece_x, piece_y, x, y) {
+                    continue;
+                }
+                if piece_x == x && piece_y == y {
+                    best_value = best_value.max(piece_price);
+                } else {
+                    best_value = best_value.max(calculate_best_value(
+                        piece_x, piece_y, &mut max_value, x, y
+                    ));
+                    if check_fit!(rotated, piece_x, piece_y, x, y) {
+                        best_value = best_value.max(calculate_best_value(
+                            piece_y, piece_x, &mut max_value, x, y
+                        ));
                     }
                 }
             }
             _t_i += 1;
+            max_value.set_pre(_t_i, best_value);
+            if x > y && x <= new_sheet_y {
+                max_value.set(y, x, best_value);
+            }
             x += 1;
         }
         y += 1;
         x = y;
         _t_i += y;
-
-        /* if _is_first {
-            _t_i = y * (new_sheet_x + 2);
-            _is_first = false;
-        } */
     }
     return max_value.get(new_sheet_x, new_sheet_y);
 }
