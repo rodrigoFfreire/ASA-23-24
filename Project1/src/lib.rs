@@ -8,6 +8,7 @@ pub const PARSE_ARGS_SHEET_SIZE: usize = 2;
 pub const ARGS_PIECE: usize = 3;
 pub const PARSE_ARGS_PIECE_AMOUNT: usize = 1;
 
+
 pub enum PieceFit {
     NoFit,
     OnlyFitsOriginal,
@@ -51,6 +52,7 @@ impl Matrix {
     }
 }
 
+
 pub struct Piece {
     x: usize,
     y: usize,
@@ -74,7 +76,7 @@ impl Piece {
     }
 }
 
-fn piece_fits(piece_x: usize, piece_y: usize, sheet_x: usize, sheet_y: usize) -> PieceFit {
+/* fn piece_fits(piece_x: usize, piece_y: usize, sheet_x: usize, sheet_y: usize) -> PieceFit {
     match (check_fit!(piece_x, piece_y, sheet_x, sheet_y),
                 check_fit!(rotated, piece_x, piece_y, sheet_x, sheet_y)) {
             (true, true) => PieceFit::FitsAll,
@@ -82,7 +84,7 @@ fn piece_fits(piece_x: usize, piece_y: usize, sheet_x: usize, sheet_y: usize) ->
             (false, _) => PieceFit::NoFit,
     }
                     
-}
+} */
 
 fn calculate_best_value(
     piece_x: usize,
@@ -95,7 +97,6 @@ fn calculate_best_value(
 ) {
     let mut h_cut_value = 0;
     let mut v_cut_value = 0;
-    let mut _best_value = 0;
 
     if x > piece_x {
         v_cut_value = matrix.get(piece_x, y) + matrix.get(x - piece_x, y);
@@ -104,7 +105,7 @@ fn calculate_best_value(
         h_cut_value = matrix.get(x, piece_y) + matrix.get(x, y - piece_y);
     }
 
-    _best_value = matrix.get_pre(_t_i).max(h_cut_value.max(v_cut_value));
+    let _best_value = matrix.get_pre(_t_i).max(h_cut_value.max(v_cut_value));
     matrix.set_pre(_t_i, _best_value);
     if x > y && x <= max_sheet_y {
         matrix.set(y, x, _best_value);
@@ -143,38 +144,30 @@ pub fn solve_best_value(order: &Vec<Piece>, amount: usize, sheet_x: usize, sheet
     let mut max_value = Matrix::new(new_sheet_x + 1, new_sheet_y + 1);
 
     let mut _best_value = 0;
-    let mut _t_i = min_piece.2;
     let mut _is_first = true;
-
+    
     let mut y: usize = min_piece.1;
-    let mut x: usize = min_piece.0;
+    let mut x: usize = y;
+    let mut _t_i = y * (new_sheet_x + 1);
 
     while y <= new_sheet_y {
         while x <= new_sheet_x {
             for piece in order.iter() {
-                let (_piece_x, _piece_y, _piece_price) = (piece.x, piece.y, piece.price);
-
-                if _piece_x == x && _piece_y == y {
-                    _best_value = max_value.get_pre(_t_i).max(_piece_price);
-                    max_value.set_pre(_t_i, _best_value);
-                    if x > y && x <= new_sheet_y {
-                        max_value.set(y, x, _best_value);
-                    }
-                } else {     
-                    let _fits = piece_fits(_piece_x, _piece_y, x, y);
-
-                    match _fits {
-                        PieceFit::NoFit => continue,
-                        PieceFit::OnlyFitsOriginal => {
+                let (piece_x, piece_y, piece_price) = (piece.x, piece.y, piece.price);
+                if check_fit!(piece_x, piece_y, x, y) {
+                    if piece_x == x && piece_y == y {
+                        _best_value = max_value.get_pre(_t_i).max(piece_price);
+                        max_value.set_pre(_t_i, _best_value);
+                        if x > y && x <= new_sheet_y {
+                            max_value.set(y, x, _best_value);
+                        }
+                    } else {
+                        calculate_best_value(
+                            piece_x, piece_y, &mut max_value, x, y, _t_i, new_sheet_y
+                        );
+                        if check_fit!(rotated, piece_x, piece_y, x, y) {
                             calculate_best_value(
-                            _piece_x, _piece_y, &mut max_value, x, y, _t_i, new_sheet_y
-                        )},
-                        PieceFit::FitsAll => {
-                            calculate_best_value(
-                                _piece_x, _piece_y, &mut max_value, x, y, _t_i, new_sheet_y
-                            );
-                            calculate_best_value(
-                                _piece_y, _piece_x, &mut max_value, x, y, _t_i, new_sheet_y
+                                piece_y, piece_x, &mut max_value, x, y, _t_i, new_sheet_y
                             );
                         }
                     }
@@ -187,10 +180,10 @@ pub fn solve_best_value(order: &Vec<Piece>, amount: usize, sheet_x: usize, sheet
         x = y;
         _t_i += y;
 
-        if _is_first {
+        /* if _is_first {
             _t_i = y * (new_sheet_x + 2);
             _is_first = false;
-        }
+        } */
     }
     return max_value.get(new_sheet_x, new_sheet_y);
 }
