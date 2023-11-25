@@ -1,4 +1,4 @@
-use std::usize;
+use std::{usize, collections::HashMap};
 
 pub const DIM_X: usize = 0;
 pub const DIM_Y: usize = 1;
@@ -40,11 +40,10 @@ impl Matrix {
     }
 }
 
-
 pub struct Piece {
     x: usize,
     y: usize,
-    price: usize
+    price: usize,
 }
 
 impl Piece {
@@ -59,7 +58,7 @@ impl Piece {
         Self { 
             x: piece_x,
             y: piece_y,
-            price: piece_info[PRICE]
+            price: piece_info[PRICE],
         }
     }
 }
@@ -71,13 +70,16 @@ fn calculate_best_value(
     x: usize,
     y: usize,
 ) -> usize {
+    
     let v_cut_value = matrix.get(piece_x, y) + matrix.get(x - piece_x, y);
     let h_cut_value = matrix.get(x, piece_y) + matrix.get(x, y - piece_y);
 
-    return h_cut_value.max(v_cut_value);
+    let result = h_cut_value.max(v_cut_value);
+
+    return result;
 }
 
-fn get_minimum_piece(order: &[Piece], sheet_x: usize) -> (usize, usize, usize) {
+fn get_minimum_piece(order: &Vec<Piece>, sheet_x: usize) -> (usize, usize, usize) {
     let mut min_x = order[0].x;
     let mut min_y = order[0].y;
     let mut min_index = order[0].y * sheet_x + order[0].x;
@@ -94,7 +96,7 @@ fn get_minimum_piece(order: &[Piece], sheet_x: usize) -> (usize, usize, usize) {
     return (min_x, min_y, min_index);
 }
 
-pub fn solve_best_value(order: &[Piece], amount: usize, sheet_x: usize, sheet_y: usize) -> usize {
+pub fn solve_best_value(order: &Vec<Piece>, amount: usize, sheet_x: usize, sheet_y: usize) -> usize {
     if amount <= 0 {
         return 0;
     }
@@ -109,17 +111,17 @@ pub fn solve_best_value(order: &[Piece], amount: usize, sheet_x: usize, sheet_y:
     let min_piece = get_minimum_piece(order, new_sheet_x + 1);
     let mut y: usize = min_piece.1;
     let mut x: usize = min_piece.0;
-    let mut _t_i = min_piece.2 - 1;
+    let mut current_index = min_piece.2 - 1;
 
     while y <= new_sheet_y {
         while x <= new_sheet_x {
-            let mut best_value = max_value.table[_t_i];
+            let mut best_value = max_value.table[current_index];
             for piece in order.iter() {
                 let (piece_x, piece_y, piece_price) = (piece.x, piece.y, piece.price);
                 if !check_fit!(piece_x, piece_y, x, y) {
                     continue;
                 }
-                if piece_x == x && piece_y == y {
+                if piece.x == x && piece.y == y {
                     best_value = best_value.max(piece_price);
                 } else {
                     best_value = best_value.max(calculate_best_value(
@@ -132,8 +134,8 @@ pub fn solve_best_value(order: &[Piece], amount: usize, sheet_x: usize, sheet_y:
                     }
                 }
             }
-            _t_i += 1;
-            max_value.table[_t_i] = best_value;
+            current_index += 1;
+            max_value.table[current_index] = best_value;
             if x > y && x <= new_sheet_y {
                 max_value.set(y, x, best_value);
             }
@@ -141,7 +143,7 @@ pub fn solve_best_value(order: &[Piece], amount: usize, sheet_x: usize, sheet_y:
         }
         y += 1;
         x = y;
-        _t_i += y;
+        current_index += y;
     }
     return max_value.get(new_sheet_x, new_sheet_y);
 }
