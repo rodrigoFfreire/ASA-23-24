@@ -30,7 +30,6 @@ void getMinimumPiece(const std::vector<Piece> &order, int (&result)[3], int shee
     int index = 0;
 
     for (const Piece &piece: order) {
-        std::cout << "AA" << std::endl;
         index = piece._y * sheet_x + piece._x;
         if (index < min_index) {
             min_x = piece._x;
@@ -53,7 +52,6 @@ int solveBestValue(const std::vector<Piece> &order, int sheet_x, int sheet_y) {
     int y = minPiece[1];
     int currentIndex = minPiece[2] - 1;
     int bestValue = 0;
-    std::cout << x << y << currentIndex << std::endl;
 
     while (y <= sheet_y) {
         while (x <= sheet_x) {
@@ -109,7 +107,7 @@ int main() {
             int x, y, price;
             std::cin >> x >> y >> price;
 
-            order.push_back({x, y, price});
+            order[i] = {x, y, price};
         }
         if (sheet_y > sheet_x) std::swap(sheet_x, sheet_y); // Force sheet to be in horizontal position
 
