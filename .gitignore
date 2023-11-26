@@ -2,6 +2,7 @@
 *.py
 *.pdf
 *.code-workspace
+*.vscode
 *.lock
 target
 test
