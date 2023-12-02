@@ -19,15 +19,17 @@ int main() {
 
         uint startIndex = 0xFFFFFFFF;
         uint matrixX = sheetX + 1;
+        uint maxIndex = sheetY * matrixX + sheetX;
         uint pieceX, pieceY, piecePrice;
-        vector<uint> valueMatrix(matrixX * (sheetY + 1), 0);
 
+        vector<uint> valueMatrix(matrixX * (sheetY + 1), 0);
         for (; pieceAmount > 0; pieceAmount--) {
             scanf("%u %u %u", &pieceX, &pieceY, &piecePrice);
             if (pieceY > pieceX)
                 swap(pieceX, pieceY);
 
             uint index = pieceY * matrixX + pieceX;
+            if (pieceX > sheetX || index > maxIndex) continue;
 
             valueMatrix[index] = max(valueMatrix[index], piecePrice);
             if (pieceX <= sheetY)
