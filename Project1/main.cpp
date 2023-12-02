@@ -41,7 +41,7 @@ int main() {
         if (startIndex % matrixX == 0)
             startIndex += startIndex / (sheetY + 1);
 
-        result = solveBestValue(valueMatrix, sheetX, sheetY, startIndex);
+        result = solveBestValue(valueMatrix, sheetX, sheetY, startIndex - 1);
     }
     cout << result << endl;
     return 0;
