@@ -17,8 +17,8 @@ int main() {
         if (sheetY > sheetX)
             swap(sheetX, sheetY);
 
+        uint startIndex = 0xFFFFFFFF;
         uint matrixX = sheetX + 1;
-        uint startIndex = -1;
         uint pieceX, pieceY, piecePrice;
         vector<uint> valueMatrix(matrixX * (sheetY + 1), 0);
 
