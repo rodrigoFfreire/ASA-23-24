@@ -19,7 +19,6 @@ int main() {
 
         uint startIndex = 0xFFFFFFFF;
         uint matrixX = sheetX + 1;
-        uint maxIndex = sheetY * matrixX + sheetX;
         uint pieceX, pieceY, piecePrice;
 
         vector<uint> valueMatrix(matrixX * (sheetY + 1), 0);
@@ -29,8 +28,6 @@ int main() {
                 swap(pieceX, pieceY);
 
             uint index = pieceY * matrixX + pieceX;
-            if (pieceX > sheetX || index > maxIndex) continue;
-
             valueMatrix[index] = max(valueMatrix[index], piecePrice);
             if (pieceX <= sheetY)
                 valueMatrix[pieceX * matrixX + pieceY] =
