@@ -1,0 +1,16 @@
+# START        -> Starting Size
+# STEP         -> Size increment
+# INSTANCES    -> Number of instances
+# PIECES       -> Number of pieces
+# SOURCE_APP   -> The project source code
+# SOURCE_GEN   -> The generator source code
+# INSTANCE_DIR -> Instances directory
+
+
+START=1000
+STEP=1000
+INSTANCES=15
+PIECES=500
+SOURCE_APP=submission_final.cpp
+SOURCE_GEN=gen_supermarble.cpp
+INSTANCE_DIR=instances
