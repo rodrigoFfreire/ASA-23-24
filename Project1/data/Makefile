@@ -10,10 +10,9 @@ GENERATOR=gen
 STOP=$$(($(START) + $(STEP) * ($(INSTANCES) - 1)))
 
 
-all: gen_tests $(TARGET)
+all: gen_instances $(TARGET)
 
-
-gen_tests: $(GENERATOR)
+gen_instances: $(GENERATOR)
 	@for i in $$(seq $(START) $(STEP) $(STOP)); do \
 		v=$$(echo "$$i / 2" | bc); \
 		./$(GENERATOR) $$v $$v $(PIECES) > $(INSTANCE_DIR)/instance$$i.in; \
