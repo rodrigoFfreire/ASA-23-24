@@ -10,5 +10,4 @@ START=500
 STEP=500
 INSTANCES=30
 PIECES=100
-SOURCE_APP=../submission/submission_final.cpp
-SOURCE_GEN=gen_supermarble.cpp
+DATA_DIR=data
