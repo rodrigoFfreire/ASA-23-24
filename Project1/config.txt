@@ -2,8 +2,7 @@
 # STEP         -> Size increment
 # INSTANCES    -> Number of instances
 # PIECES       -> Number of pieces
-# SOURCE_APP   -> The project source code
-# SOURCE_GEN   -> The generator source code
+# DATA_DIR     -> Directory to process data (must contain the generator code)
 
 
 START=500

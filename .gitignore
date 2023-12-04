@@ -1,8 +1,6 @@
-*.out
 *.pdf
 *.code-workspace
 *.vscode
 Project1/submission
 Project1/data/*.cpp
 Project1/data/instances
-.venv
