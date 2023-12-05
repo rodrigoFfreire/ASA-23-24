@@ -16,8 +16,8 @@ TESTS       := $(sort $(shell find $(DATA_DIR)/instances -type f -name "*.in"))
 
 build: $(TARGET)
 
-$(TARGET): main.cpp solver.cpp
-	$(CC) $(CFLAGS) $^ -o $@ -lm
+$(TARGET): main.cpp
+	$(CC) $(CFLAGS) $< -o $@ -lm
 
 
 $(GENERATOR): $(DATA_DIR)/gen_supermarble.cpp
