@@ -21,7 +21,7 @@ $(TARGET): main.cpp
 
 
 $(GENERATOR): $(DATA_DIR)/gen_supermarble.cpp
-    $(CC) $(CFLAGS) $< -o $@ -lm
+	$(CC) $(CFLAGS) $< -o $@ -lm
 
 
 run: $(TARGET)
@@ -29,22 +29,22 @@ run: $(TARGET)
 
 
 generate: $(GENERATOR)
-    @for i in $$(seq $(START) $(STEP) $(STOP)); do \
-        v=$$(echo "$$i / 2" | bc); \
-        ./$(DATA_DIR)/$(GENERATOR) $$v $$v $(PIECES) $(SEED) > ./$(DATA_DIR)/instances/instance$$i.in; \
-    done;
-    @printf "%d Instances created!\n" $(INSTANCES);
+	@for i in $$(seq $(START) $(STEP) $(STOP)); do \
+		v=$$(echo "$$i / 2" | bc); \
+		./$(DATA_DIR)/$(GENERATOR) $$v $$v $(PIECES) $(SEED) > ./$(DATA_DIR)/instances/instance$$i.in; \
+	done;
+	@printf "%d Instances created!\n" $(INSTANCES);
 
 measure: $(TARGET)
-    @for i in $(TESTS); do \
-        sudo chrt -f 99 perf stat -o $$i.time ./$(TARGET) < $$i > /dev/null; \
-        printf "Measured %s\n" $$i; \
-    done;
-    @printf "%d Instances measured!\n" $(INSTANCES);
+	@for i in $(TESTS); do \
+		sudo chrt -f 99 perf stat -o $$i.time ./$(TARGET) < $$i > /dev/null; \
+		printf "Measured %s\n" $$i; \
+	done;
+	@printf "%d Instances measured!\n" $(INSTANCES);
 
 
 clean:
 	@$(RM) $(TARGET)
 	@$(RM) $(DATA_DIR)/$(GENERATOR)
-    @$(RM) $(DATA_DIR)/instances/*.in
-    @$(RM) $(DATA_DIR)/instances/*.time
+	@$(RM) $(DATA_DIR)/instances/*.in
+	@$(RM) $(DATA_DIR)/instances/*.time
