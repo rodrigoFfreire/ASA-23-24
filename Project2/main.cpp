@@ -6,14 +6,11 @@
 
 using namespace std;
 
-int iterativeDfs(int source, vector<vector<int>>& adj, vector<vector<int>>& adjCopy, 
-                    vector<int>& maxJumps, vector<bool>& visited, int n)
+int iterativeDfs(const vector<vector<int>>& adj, vector<vector<int>>& adjCopy, 
+                vector<int>& maxJumps, vector<bool>& visited, vector<bool>& insertFlag,
+                vector<bool>& isCycleStart, vector<int>& cycleId, 
+                stack<int>& nodeStack, vector<int>& processedChildren, int source)
 {
-    vector<bool> insertFlag(n, false);
-    vector<bool> isCycleStart(n, false);
-    vector<int> cycleId(n, 0);
-    vector<int> processedChildren(n, 0);
-    stack<int> nodeStack;
 
     nodeStack.push(source);
 
@@ -62,14 +59,26 @@ int iterativeDfs(int source, vector<vector<int>>& adj, vector<vector<int>>& adjC
 
 int findLongestPath(vector<vector<int>>& adj, vector<vector<int>>& adjCopy, int n)
 {
-    vector<int> maxJumps(n, 0);
     vector<bool> visited(n, false);
+    vector<int> maxJumps(n, 0);
+
+    vector<bool> insertFlag(n, false);
+    vector<bool> isCycleStart(n, false);
+    vector<int> cycleId(n, 0);
+    vector<int> processedChildren(n, 0);
+    stack<int> nodeStack;
     
     int ans = 0;
 
     for (int i = 0; i < n; i++) {
         if (!visited[i]) {
-            ans = max(ans, iterativeDfs(i, adj, adjCopy, maxJumps, visited, n));
+            fill(insertFlag.begin(), insertFlag.end(), false);
+            fill(isCycleStart.begin(), isCycleStart.end(), false);
+            fill(cycleId.begin(), cycleId.end(), 0);
+            fill(processedChildren.begin(), processedChildren.end(), 0);
+
+            ans = max(ans, iterativeDfs(adj, adjCopy, maxJumps, visited, insertFlag, 
+                        isCycleStart, cycleId, nodeStack, processedChildren, i));
         }
     }
     return ans;
