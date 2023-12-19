@@ -4,7 +4,7 @@
 # DATA_DIR     -> Directory to process data (must contain the generator code)
 
 
-START=10000
-STEP=10000
-INSTANCES=30
+START=5000
+STEP=2000
+INSTANCES=12
 DATA_DIR=data
