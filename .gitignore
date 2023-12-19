@@ -2,3 +2,8 @@
 *.vscode
 submission
 data/instances
+
+# binaries
+proj1
+proj2
+gen
