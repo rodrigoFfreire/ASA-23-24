@@ -5,7 +5,7 @@ include $(CONFIG)
 CC           = g++
 CFLAGS       = -std=c++11 -Wall -Werror -Wextra -O3
 TARGET       = proj2
-GENERATOR    = gen
+GENERATOR    = $(DATA_DIR)/gen
 
 STOP         = $$(($(START) + $(STEP) * ($(INSTANCES) - 1)))
 SEED        := $(od -An -N4 -i /dev/urandom | awk '{print $1}')
@@ -20,7 +20,7 @@ $(TARGET): main.cpp
 	$(CC) $(CFLAGS) $< -o $@ -lm
 
 
-$(GENERATOR): $(DATA_DIR)/gen_supermarble.cpp
+$(GENERATOR): $(DATA_DIR)/gen_tuganet.cpp
 	$(CC) $(CFLAGS) $< -o $@ -lm
 
 
@@ -31,7 +31,7 @@ run: $(TARGET)
 generate: $(GENERATOR)
 	@for i in $$(seq $(START) $(STEP) $(STOP)); do \
 		v=$$(echo "$$i / 2" | bc); \
-		./$(DATA_DIR)/$(GENERATOR) $$v $$v $(PIECES) $(SEED) > ./$(DATA_DIR)/instances/instance$$i.in; \
+		./$(GENERATOR) $$v $$v $$(echo "$$v / 10" | bc) $(SEED) > ./$(DATA_DIR)/instances/instance$$i.in; \
 	done;
 	@printf "%d Instances created!\n" $(INSTANCES);
 
@@ -45,6 +45,6 @@ measure: $(TARGET)
 
 clean:
 	@$(RM) $(TARGET)
-	@$(RM) $(DATA_DIR)/$(GENERATOR)
+	@$(RM) $(GENERATOR)
 	@$(RM) $(DATA_DIR)/instances/*.in
 	@$(RM) $(DATA_DIR)/instances/*.time
