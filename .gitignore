@@ -1,7 +1,7 @@
 *.code-workspace
 *.vscode
 submission
-data/instances
+instances
 
 # binaries
 proj1
