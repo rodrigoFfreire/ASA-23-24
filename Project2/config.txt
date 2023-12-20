@@ -1,0 +1,10 @@
+# START        -> Starting Size (Ex: START=500 -> N = 250; M = 250)
+# STEP         -> Size Increment (Ex: STEP=1000 -> N++1000; M++1000)
+# INSTANCES    -> Number of instances
+# DATA_DIR     -> Directory to process data (must contain the generator code)
+
+
+START=2000
+STEP=1000
+INSTANCES=30
+DATA_DIR=data

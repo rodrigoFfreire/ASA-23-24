@@ -1,5 +1,9 @@
 *.code-workspace
 *.vscode
-Project1/submission
-Project1/data/*.cpp
-Project1/data/instances
+submission
+instances
+
+# binaries
+proj1
+proj2
+gen
