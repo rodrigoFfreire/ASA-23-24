@@ -1,9 +1,12 @@
+# Directories
 *.code-workspace
 *.vscode
 submission
 instances
+.venv
 
-# binaries
+# Binaries
 proj1
 proj2
+proj3
 gen
