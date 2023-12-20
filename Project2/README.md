@@ -1,4 +1,4 @@
-# Project 1
+# Project 2 
 
 ## How to run
 To compile and run the project you can seperately
@@ -13,7 +13,7 @@ Then run
 ```bash
 make generate
 ```
-This will generate random `.in` files with the desired settings with the help of the [generator](data/gen_supermarble.cpp).
+This will generate random `.in` files with the desired settings with the help of the [generator](data/gen_tuganet.cpp).
 To benchmark each instance run
 ```bash
 make measure
