@@ -16,13 +16,11 @@ def solve(toys, packages, toyAmount, packageAmount, maxToys):
         model += toys[i][2] + lpSum([info[4] for info in packages if i + 1 in info[:3]]) <= toys[i][1]
 
     model.solve(solver)
-
     return value(model.objective)
 
 def main():
     result = 0
     toyAmount, packageAmount, maxToys = [int(i) for i in input().split()]
-    packages = []
 
     if toyAmount > 0 and packageAmount >= 0 and maxToys > 0:
         toys = tuple(
