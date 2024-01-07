@@ -29,9 +29,11 @@ run: $(TARGET)
 
 
 generate: $(GENERATOR)
-	@for i in $$(seq $(START) $(STEP) $(STOP)); do \
+	@INST_I=0; \
+	for i in $$(seq $(START) $(STEP) $(STOP)); do \
 		v=$$(echo "$$i / 2" | bc); \
-		./$(GENERATOR) $$v $$v $(PIECES) $(SEED) > ./$(DATA_DIR)/instances/instance$$i.in; \
+		./$(GENERATOR) $$v $$v $(PIECES) $(SEED) > ./$(DATA_DIR)/instances/instance$${INST_I}_$$i.in; \
+		INST_I=$$((INST_I + 1)); \
 	done;
 	@printf "%d Instances created!\n" $(INSTANCES);
 

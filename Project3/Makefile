@@ -25,7 +25,7 @@ $(GENERATOR): $(DATA_DIR)/gen_ubiquity.cpp
 generate: $(GENERATOR)
 	@INST_I=0; \
 	for i in $$(seq $(START) $(STEP) $(STOP)); do \
-		./$(GENERATOR) $$(echo "$$i - $$i / 3" | bc) $$(echo "$$i / 3" | bc) 0 50 100 100 $(SEED) > ./$(DATA_DIR)/instances/instance$${INST_I}_$$i.in; \
+		./$(GENERATOR) $$(echo "$$i - $$i / 3" | bc) $$(echo "$$i / 3" | bc) 0 50 100 100 $(SEED) > ./$(DATA_DIR)/instances/instance_$${INST_I}_$$i.in; \
 		INST_I=$$((INST_I + 1)); \
 	done;
 	@printf "%d Instances created!\n" $(INSTANCES);
