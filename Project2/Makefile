@@ -5,11 +5,11 @@ include $(CONFIG)
 CC           = g++
 CFLAGS       = -std=c++11 -Wall -Werror -Wextra -O3
 TARGET       = proj2
-GENERATOR    = $(DATA_DIR)/gen
+GENERATOR    = data/gen
 
 STOP         = $$(($(START) + $(STEP) * ($(INSTANCES) - 1)))
 SEED        := $(od -An -N4 -i /dev/urandom | awk '{print $1}')
-TESTS       := $(shell find $(DATA_DIR)/instances -type f -name "*.in" | sort -t_ -k2 -n)
+TESTS       := $(shell find data/instances -type f -name "*.in" | sort -t_ -k2 -n)
 
 
 .PHONY: run generate measure clean
@@ -20,7 +20,7 @@ $(TARGET): main.cpp
 	$(CC) $(CFLAGS) $< -o $@ -lm
 
 
-$(GENERATOR): $(DATA_DIR)/gen_tuganet.cpp
+$(GENERATOR): data/gen_tuganet.cpp
 	$(CC) $(CFLAGS) $< -o $@ -lm
 
 
@@ -32,10 +32,11 @@ generate: $(GENERATOR)
 	@INST_I=0; \
 	for i in $$(seq $(START) $(STEP) $(STOP)); do \
 		v=$$(echo "$$i / 2" | bc); \
-		./$(GENERATOR) $$v $$v $$(echo "$$v / 10" | bc) $(SEED) > ./$(DATA_DIR)/instances/instance_$${INST_I}_$$i.in; \
+		./$(GENERATOR) $$v $$v $$(echo "$$v / 10" | bc) $(SEED) > ./data/instances/instance_$${INST_I}_$$i.in; \
 		INST_I=$$((INST_I + 1)); \
 	done;
 	@printf "%d Instances created!\n" $(INSTANCES);
+	@(cd ../AxisGen; python3 gen_axis.py ../Project2/data/instances);
 
 measure: $(TARGET)
 	@for i in $(TESTS); do \
@@ -48,5 +49,5 @@ measure: $(TARGET)
 clean:
 	@$(RM) $(TARGET)
 	@$(RM) $(GENERATOR)
-	@$(RM) $(DATA_DIR)/instances/*.in
-	@$(RM) $(DATA_DIR)/instances/*.time
+	@$(RM) data/instances/*.in
+	@$(RM) data/instances/*.time

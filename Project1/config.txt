@@ -2,11 +2,9 @@
 # STEP         -> Size increment
 # INSTANCES    -> Number of instances
 # PIECES       -> Number of pieces
-# DATA_DIR     -> Directory to process data (must contain the generator code)
 
 
 START=500
 STEP=500
 INSTANCES=30
 PIECES=100
-DATA_DIR=data
