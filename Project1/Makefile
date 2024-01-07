@@ -9,7 +9,7 @@ GENERATOR    = $(DATA_DIR)/gen
 
 STOP         = $$(($(START) + $(STEP) * ($(INSTANCES) - 1)))
 SEED        := $(od -An -N4 -i /dev/urandom | awk '{print $1}')
-TESTS       := $(sort $(shell find $(DATA_DIR)/instances -type f -name "*.in"))
+TESTS       := $(shell find $(DATA_DIR)/instances -type f -name "*.in" | sort -t_ -k2 -n)
 
 
 .PHONY: run generate measure clean
