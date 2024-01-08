@@ -1,6 +1,15 @@
+''' ---- AXIS GEN ----
+Reads all .time files and parses the total elapsed time and input parameter for each instance
+in this format:
+    Time Array: t = [t1, t2, ..., tn]
+    InputParameters Array: s = [s1, s2, ..., sn]
+This format was chosen to copy-paste into Desmos for the graph generation
+'''
+
 import os
 import re
 import sys
+
 
 def extract_elapsed_time(file_path):
     with open(file_path, 'r') as file:
