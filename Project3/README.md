@@ -1,4 +1,4 @@
-# Project 2 
+# Project 3 
 
 ## How to run
 Make sure to install the PIP dependencies and then run `make run`
