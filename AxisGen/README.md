@@ -9,7 +9,7 @@ Time Array: t = [t1, t2, ..., tn]
 InputParameters Array: s = [s1, s2, ..., sn]
 ```
 
-> ![Desmos](https://www.desmos.com/calculator) was chosen for the graph generation. You can simply copy-paste the output and it will create those two arrays in the app.
+> [Desmos](https://www.desmos.com/calculator) was chosen for the graph generation. You can simply copy-paste the output and it will create those two arrays in the app.
 
 ## How to run
 Simply run:
