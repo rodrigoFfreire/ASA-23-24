@@ -1,5 +1,7 @@
 # Project 3 
 
+Make sure to read the [problem](./problem.pdf) for more information about what the program solves.
+
 ## How to run
 Make sure to install the PIP dependencies and then run `make run`
 ```bash

@@ -1,5 +1,7 @@
 # Project 1
 
+Make sure to read the [problem](./problem.pdf) for more information about what the program solves.
+
 ## How to run
 To compile and run the project you can seperately
 ```bash
